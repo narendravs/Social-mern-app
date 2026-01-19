@@ -5,20 +5,38 @@ const PostSchema = new mongoose.Schema(
     userId: {
       type: String,
       required: true,
+      index: true,
     },
     desc: {
       type: String,
-      max: 500,
+      maxlength: 500,
+      default: "",
     },
     img: {
       type: String,
+      default: "",
     },
     likes: {
-      type: Array,
+      type: [String], // keep compatibility
       default: [],
     },
+    likeCount: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
+    commentCount: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
+
+// Sort/index on createdAt for timelines and pagination
+PostSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model("Post", PostSchema);
