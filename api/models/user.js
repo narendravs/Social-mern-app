@@ -4,21 +4,25 @@ const UserSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      require: true,
-      min: 3,
-      max: 20,
+      required: true, // fix: was `require`
+      trim: true,
+      lowercase: true,
+      minlength: 3,
+      maxlength: 20,
       unique: true,
     },
     email: {
       type: String,
       required: true,
-      max: 50,
+      trim: true,
+      lowercase: true,
+      maxlength: 50,
       unique: true,
     },
     password: {
       type: String,
       required: true,
-      min: 6,
+      minlength: 6,
     },
     profilePicture: {
       type: String,
@@ -29,12 +33,20 @@ const UserSchema = new mongoose.Schema(
       default: "",
     },
     followers: {
-      type: Array,
+      type: [String], // keep compatibility with existing code
       default: [],
     },
     followings: {
-      type: Array,
+      type: [String], // keep compatibility with existing code
       default: [],
+    },
+    followersCount: {
+      type: Number,
+      default: 0,
+    },
+    followingsCount: {
+      type: Number,
+      default: 0,
     },
     isAdmin: {
       type: Boolean,
@@ -42,22 +54,38 @@ const UserSchema = new mongoose.Schema(
     },
     desc: {
       type: String,
-      max: 50,
+      maxlength: 160,
+      default: "",
     },
     city: {
       type: String,
-      max: 50,
+      maxlength: 50,
+      default: "",
     },
     from: {
       type: String,
-      max: 50,
+      maxlength: 50,
+      default: "",
     },
     relationship: {
       type: Number,
       enum: [1, 2, 3],
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: {
+      transform(doc, ret) {
+        delete ret.password;
+        delete ret.__v;
+        return ret;
+      },
+    },
+  }
 );
+
+// Indexes for performance and uniqueness
+UserSchema.index({ email: 1 }, { unique: true });
+UserSchema.index({ username: 1 }, { unique: true });
 
 module.exports = mongoose.model("User", UserSchema);
