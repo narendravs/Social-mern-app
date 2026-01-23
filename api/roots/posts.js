@@ -6,6 +6,8 @@ const Post = require("../models/posts");
 const User = require("../models/user");
 const auth = require("../middlewares/auth");
 const asyncHandler = require("../middlewares/asyncHandler");
+const { uploadProfile } = require("../middlewares/uploadImages");
+const uploadToCloudinary = require("../middlewares/cloudinaryUpload");
 
 // Validation schemas
 const createPostSchema = z.object({
@@ -48,15 +50,14 @@ const sanitizeInput = (input) => {
 router.post(
   "/",
   auth,
-  [
-    body("desc").optional().isString().isLength({ max: 500 }),
-    body("img").optional().isString(),
-  ],
+  uploadProfile.single("file"),
+  uploadToCloudinary,
+  [body("desc").optional().isString().isLength({ max: 500 })],
   validate,
   asyncHandler(async (req, res) => {
     const sanitizedBody = {
       desc: sanitizeInput(req.body.desc) || "",
-      img: req.body.img || "",
+      img: req.cloudinaryUrl || "",
       userId: req.user.id,
     };
 
@@ -67,7 +68,7 @@ router.post(
     await User.findByIdAndUpdate(req.user.id, { $inc: { postCount: 1 } });
 
     res.status(201).json(savedPost);
-  })
+  }),
 );
 
 //update post
@@ -89,11 +90,9 @@ router.put(
     }
 
     if (post.userId !== req.user.id) {
-      return res
-        .status(403)
-        .json({
-          error: { code: "FORBIDDEN", message: "You can't update this post" },
-        });
+      return res.status(403).json({
+        error: { code: "FORBIDDEN", message: "You can't update this post" },
+      });
     }
 
     const sanitizedBody = {
@@ -104,11 +103,11 @@ router.put(
     const updatedPost = await Post.findByIdAndUpdate(
       req.params.id,
       { $set: sanitizedBody },
-      { new: true }
+      { new: true },
     );
 
     res.status(200).json(updatedPost);
-  })
+  }),
 );
 
 //delete the post
@@ -125,11 +124,9 @@ router.delete(
     }
 
     if (post.userId !== req.user.id && !req.user.roles.includes("admin")) {
-      return res
-        .status(403)
-        .json({
-          error: { code: "FORBIDDEN", message: "You can't delete this post" },
-        });
+      return res.status(403).json({
+        error: { code: "FORBIDDEN", message: "You can't delete this post" },
+      });
     }
 
     await Post.findByIdAndDelete(req.params.id);
@@ -140,7 +137,7 @@ router.delete(
     res
       .status(200)
       .json({ success: true, message: "Post deleted successfully" });
-  })
+  }),
 );
 
 //like / dislike a post
@@ -176,7 +173,79 @@ router.put(
         .status(200)
         .json({ success: true, message: "Post liked", liked: true });
     }
-  })
+  }),
+);
+
+// add a comment to a post
+router.post(
+  "/:id/comment",
+  auth,
+  [body("text").isString().notEmpty().isLength({ max: 200 })],
+  validate,
+  asyncHandler(async (req, res) => {
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res
+        .status(404)
+        .json({ error: { code: "NOT_FOUND", message: "Post not found" } });
+    }
+
+    const user = await User.findById(req.user.id).select(
+      "username profilePicture",
+    );
+    if (!user) {
+      return res
+        .status(404)
+        .json({ error: { code: "NOT_FOUND", message: "User not found" } });
+    }
+
+    const newComment = {
+      userId: req.user.id,
+      username: user.username,
+      profilePicture: user.profilePicture,
+      text: sanitizeInput(req.body.text),
+      createdAt: new Date(),
+    };
+
+    post.comments.push(newComment);
+    post.commentCount = post.comments.length;
+    await post.save();
+
+    res.status(201).json(newComment);
+  }),
+);
+
+// get all comments for a post
+router.get(
+  "/:id/comments",
+  auth,
+  asyncHandler(async (req, res) => {
+    const post = await Post.findById(req.params.id).select("comments");
+    if (!post) {
+      return res
+        .status(404)
+        .json({ error: { code: "NOT_FOUND", message: "Post not found" } });
+    }
+
+    // Sort comments by newest first
+    const sortedComments = post.comments.sort(
+      (a, b) => b.createdAt - a.createdAt,
+    );
+
+    res.status(200).json(sortedComments);
+  }),
+);
+
+//get random posts (Global Feed)
+router.get(
+  "/random",
+  auth,
+  asyncHandler(async (req, res) => {
+    const limit = parseInt(req.query.limit) || 10;
+    const posts = await Post.aggregate([{ $sample: { size: limit } }]);
+    console.log("Random posts fetched:", posts.length);
+    res.status(200).json({ posts, hasMore: true });
+  }),
 );
 
 //get timeline posts with pagination
@@ -206,7 +275,7 @@ router.get(
         return Post.find({ userId: friendId })
           .sort({ createdAt: -1 })
           .limit(limit);
-      })
+      }),
     );
 
     const allPosts = userPosts.concat(...friendPosts);
@@ -226,7 +295,7 @@ router.get(
         hasMore: skip + limit < totalPosts,
       },
     });
-  })
+  }),
 );
 
 //get user's all posts with pagination
@@ -262,7 +331,7 @@ router.get(
         hasMore: skip + limit < totalPosts,
       },
     });
-  })
+  }),
 );
 
 //get single post
@@ -279,7 +348,7 @@ router.get(
     }
 
     res.status(200).json(post);
-  })
+  }),
 );
 
 module.exports = router;
