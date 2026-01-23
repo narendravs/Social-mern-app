@@ -20,6 +20,15 @@ const PostSchema = new mongoose.Schema(
       type: [String], // keep compatibility
       default: [],
     },
+    comments: [
+      {
+        userId: { type: String, required: true },
+        username: { type: String, required: true },
+        profilePicture: { type: String, default: "" },
+        text: { type: String, required: true, maxlength: 200 },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
     likeCount: {
       type: Number,
       default: 0,
