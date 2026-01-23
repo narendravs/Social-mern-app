@@ -1,0 +1,53 @@
+.feed {
+  flex: 10;
+  overflow-y: auto;
+}
+
+.feedWrapper {
+  padding: 20px;
+}
+
+.feedLoading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.feedEmpty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  color: #666;
+  font-size: 16px;
+  text-align: center;
+}
+
+.feedLoadMore {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.feedLoadMore button {
+  text-transform: none;
+}
+
+/* Hide scrollbar but keep functionality */
+.feed::-webkit-scrollbar {
+  width: 8px;
+}
+
+.feed::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.feed::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.feed::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
