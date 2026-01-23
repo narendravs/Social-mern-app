@@ -1,0 +1,17 @@
+.postFollowButton {
+  margin-right: 10px;
+  border: none;
+  background-color: #1877f2;
+  color: white;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.postFollowButton.following {
+  background-color: #e0e0e0;
+  color: #444;
+}
