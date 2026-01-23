@@ -36,6 +36,14 @@ const UserSchema = new mongoose.Schema(
       type: [String], // keep compatibility with existing code
       default: [],
     },
+    friends: [
+      {
+        userId: { type: String, required: true },
+        username: { type: String, required: true },
+        profilePicture: { type: String, default: "" },
+      },
+    ],
+
     followings: {
       type: [String], // keep compatibility with existing code
       default: [],
@@ -68,8 +76,9 @@ const UserSchema = new mongoose.Schema(
       default: "",
     },
     relationship: {
-      type: Number,
-      enum: [1, 2, 3],
+      type: String,
+      enum: ["Single", "Married", "Unmarried", ""],
+      default: "",
     },
   },
   {
@@ -81,7 +90,7 @@ const UserSchema = new mongoose.Schema(
         return ret;
       },
     },
-  }
+  },
 );
 
 // Indexes for performance and uniqueness
