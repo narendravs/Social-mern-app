@@ -5,31 +5,118 @@
   box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
   margin: 30px 0;
 }
+
 .postWrapper {
   padding: 10px;
 }
+
 .postTop {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
 .postTopLeft {
   display: flex;
   align-items: center;
 }
+
 .postProfileImg {
   width: 32px;
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
 }
+
+.postTopLeftInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.postUsernameLink {
+  text-decoration: none;
+  color: inherit;
+}
+
 .postUsername {
   font-size: 15px;
   font-weight: 500;
   margin: 0 10px;
 }
+
 .postDate {
   font-size: 12px;
+  color: #666;
+  margin-left: 10px;
+}
+
+.postTopRight {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.postFollowButton {
+  margin-right: 10px;
+  border: none;
+  background-color: #1877f2;
+  color: white;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.postFollowButton.following {
+  background-color: #e0e0e0;
+  color: #444;
+}
+
+.postMenuButton {
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.postMenuButton:hover {
+  background-color: #f0f0f0;
+}
+
+.postMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  min-width: 120px;
+  overflow: hidden;
+}
+
+.postMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 14px;
+}
+
+.postMenuItem:hover {
+  background-color: #f5f5f5;
+}
+
+.postMenuItem.delete {
+  color: #d32f2f;
+}
+
+.postMenuItem.delete:hover {
+  background-color: #ffebee;
 }
 
 .postCenter {
@@ -41,27 +128,191 @@
   width: 100%;
   max-height: 500px;
   object-fit: contain;
+  border-radius: 4px;
 }
+
 .postBottom {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
 .postBottomLeft {
   display: flex;
   align-items: center;
 }
+
 .likeIcon {
   height: 24px;
   margin-right: 5px;
   cursor: pointer;
+  transition: transform 0.1s;
 }
+
+.likeIcon:hover {
+  transform: scale(1.1);
+}
+
 .postLikeCounter {
   font-size: 15px;
+}
+
+.postText {
+  font-size: 15px;
+  color: black;
+  font-weight: 200;
+  word-wrap: break-word;
 }
 
 .postCommentText {
   cursor: pointer;
   border-bottom: 1px dashed gray;
   font-size: 15px;
+}
+
+/* Edit styles */
+.postEditContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.postEditInput {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.postEditInput:focus {
+  outline: none;
+  border-color: #1976d2;
+}
+
+.postEditActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.postEditCancel,
+.postEditSave {
+  padding: 6px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.postEditCancel {
+  background: #f5f5f5;
+  border: none;
+}
+
+.postEditCancel:hover {
+  background: #e0e0e0;
+}
+
+.postEditSave {
+  background: #1976d2;
+  color: white;
+  border: none;
+}
+
+.postEditSave:hover {
+  background: #1565c0;
+}
+
+/* Comments Section */
+.postCommentsSection {
+  border-top: 1px solid #e0e0e0;
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.postCommentInputContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.postCommentProfileImg {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.postCommentForm {
+  display: flex;
+  flex-grow: 1;
+  background-color: #f0f2f5;
+  border-radius: 20px;
+  padding: 0 10px;
+}
+
+.postCommentInput {
+  flex-grow: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.postCommentInput:focus {
+  outline: none;
+}
+
+.postCommentSubmit {
+  border: none;
+  background: transparent;
+  color: #1877f2;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.postCommentSubmit:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.commentsLoading {
+  text-align: center;
+  color: #888;
+  padding: 10px;
+}
+
+.postCommentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.postComment {
+  display: flex;
+  gap: 10px;
+}
+
+.postCommentBody {
+  background-color: #f0f2f5;
+  padding: 8px 12px;
+  border-radius: 18px;
+  max-width: calc(100% - 42px);
+}
+
+.postCommentUsername {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.postCommentTextContent {
+  margin: 2px 0 0 0;
+  font-size: 14px;
+  word-wrap: break-word;
 }
