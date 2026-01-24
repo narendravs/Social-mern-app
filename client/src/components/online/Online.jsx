@@ -1,5 +1,5 @@
 import React from "react";
-import "./online.css";
+import "./Online.css";
 
 function Online({ user }) {
   const PF = "http://localhost:3000/images/";
