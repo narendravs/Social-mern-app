@@ -1,79 +1,200 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useRef, useState, useCallback } from "react";
+import PropTypes from "prop-types";
 import {
   Cancel,
   PermMedia,
   Label,
   Room,
   EmojiEmotions,
-} from "@material-ui/icons";
-import "./share.css";
+} from "@mui/icons-material";
+import "./Share.css";
 import { AuthContext } from "../../context/AuthContext";
-import axios from "axios";
+import { postAPI, uploadFile, userAPI } from "../../lib/api";
+import { CircularProgress } from "@mui/material";
+import { useSocket } from "../../context/socket/SocketContext";
+import BuildImageUrl from "../../utils/BuildImageUrl.jsx";
 
-function Share() {
+function Share({ onPost }) {
   const [file, setFile] = useState(null);
-  const { user } = useContext(AuthContext);
-  const PF = "http://localhost:3000/images/";
+  const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { socket } = useSocket();
+  const { user, updateUser, dispatch } = useContext(AuthContext);
+  const PF = import.meta.env.VITE_PUBLIC_FOLDER || "/images/";
+  const descRef = useRef();
+  const profilePicInputRef = useRef();
 
-  const desc = useRef();
+  // Safety check for user object
+  if (!user) {
+    return (
+      <div className="share">
+        <div className="shareWrapper">
+          <CircularProgress />
+        </div>
+      </div>
+    );
+  }
 
+  // Handle file selection with preview
+  const handleFileChange = useCallback((e) => {
+    const selectedFile = e.target.files[0];
+    if (!selectedFile) return;
+
+    // Validate file type
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!allowedTypes.includes(selectedFile.type)) {
+      setError("Invalid file type. Only JPEG, PNG, GIF and WebP are allowed.");
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      setError("File size too large. Maximum size is 5MB.");
+      return;
+    }
+
+    setFile(selectedFile);
+    setPreview(URL.createObjectURL(selectedFile));
+    setError(null);
+  }, []);
+
+  // Clear file selection
+  const clearFile = useCallback(() => {
+    setFile(null);
+    setPreview(null);
+    setError(null);
+  }, []);
+
+  // Handle profile picture update
+  const handleProfilePictureUpdate = async (e, field) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!user?._id) {
+      console.error("User ID is missing");
+      setError("User session invalid. Please login again.");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError("File size too large. Maximum size is 5MB.");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Create FormData to send the file
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await userAPI.updateUserImages(formData, field);
+      dispatch({ type: "UPDATE_USER", payload: res.data });
+      localStorage.setItem("user", JSON.stringify(res.data));
+    } catch (err) {
+      console.error("Failed to update profile picture:", err);
+      setError("Failed to update profile picture. Please try again.");
+    }
+    setLoading(false);
+  };
+
+  // Submit new post
   const submitHandler = async (e) => {
     e.preventDefault();
-    const newPost = {
-      userId: user._id,
-      desc: desc.current.value,
-    };
-    if (file) {
-      const data = new FormData();
-      const fileName = Date.now() + file.name;
-      data.append("name", fileName);
-      data.append("file", file);
-      newPost.img = fileName;
-      console.log(newPost);
-      try {
-        await axios.post("/upload", data);
-      } catch (error) {
-        console.log(error);
+
+    if (!descRef.current?.value.trim() && !file) {
+      setError("Please add a description or image");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("desc", descRef.current?.value || "");
+      if (file) {
+        formData.append("file", file);
       }
-      try {
-        await axios.post("/posts", newPost);
-        window.location.reload();
-      } catch (error) {
-        console.log(error);
+      const res = await postAPI.createPost(formData);
+
+      // TRIGGER NOTIFICATION
+      socket?.emit("sendNotification", {
+        senderName: user.username,
+        type: "newPost", // Unique type for new posts
+      });
+
+      // Reset form
+      setFile(null);
+      setPreview(null);
+      descRef.current.value = "";
+
+      if (onPost) {
+        onPost(res.data);
       }
+    } catch (err) {
+      console.error("Share error:", err);
+      setError(
+        err.response?.data?.error?.message ||
+          "Failed to share post. Please try again.",
+      );
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <div className="share">
       <div className="shareWrapper">
         <div className="shareTop">
-          <img
-            className="shareProfileImg"
-            src={
-              user.profilePicture
-                ? PF + user.profilePicture
-                : PF + "person/noAvatar.png"
-            }
-            alt=""
+          <label
+            htmlFor="profilePictureInput"
+            className="shareProfileImgContainer"
+          >
+            <img
+              className="shareProfileImg"
+              src={
+                BuildImageUrl(
+                  user?.profilePicture || "",
+                  PF,
+                  user?.updatedAt,
+                ) || PF + "person/noAvatar.png"
+              }
+              alt=""
+            />
+          </label>
+          <input
+            type="file"
+            id="profilePictureInput"
+            ref={profilePicInputRef}
+            style={{ display: "none" }}
+            accept="image/*"
+            onChange={(e) => handleProfilePictureUpdate(e, "profilePicture")}
           />
           <input
-            placeholder={"What's in your mind  " + user.username + " ?"}
+            placeholder={`What's in your mind ${user.username}?`}
             className="shareInput"
-            ref={desc}
+            ref={descRef}
+            maxLength={500}
           />
         </div>
         <hr className="shareHr" />
-        {file && (
-          <div className="shareImgContainer">
-            <img className="shareImg" src={URL.createObjectURL(file)} alt="" />
-            <Cancel
-              className="shareCancelImg"
-              onClick={() => {
-                setFile(null);
-              }}
-            />
+
+        {/* Error message */}
+        {error && (
+          <div className="shareError">
+            <span>{error}</span>
           </div>
         )}
+
+        {/* Preview of selected image */}
+        {preview && (
+          <div className="shareImgContainer">
+            <img className="shareImg" src={preview} alt="Preview" />
+            <Cancel className="shareCancelImg" onClick={clearFile} />
+          </div>
+        )}
+
         <form className="shareBottom" onSubmit={submitHandler}>
           <div className="shareOptions">
             <label htmlFor="file" className="shareOption">
@@ -83,8 +204,8 @@ function Share() {
                 style={{ display: "none" }}
                 type="file"
                 id="file"
-                accept=".png,.jpeg,.jpg"
-                onChange={(e) => setFile(e.target.files[0])}
+                accept=".jpg,.jpeg,.png,.gif,.webp"
+                onChange={handleFileChange}
               />
             </label>
             <div className="shareOption">
@@ -100,13 +221,17 @@ function Share() {
               <span className="shareOptionText">Feelings</span>
             </div>
           </div>
-          <button className="shareButton" type="submit">
-            Share
+          <button className="shareButton" type="submit" disabled={loading}>
+            {loading ? <CircularProgress color="white" size="20px" /> : "Share"}
           </button>
         </form>
       </div>
     </div>
   );
 }
+
+Share.propTypes = {
+  onPost: PropTypes.func,
+};
 
 export default Share;
