@@ -3,64 +3,103 @@
   border-radius: 10px;
   -webkit-box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
   box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+  background-color: white;
 }
+
 .shareWrapper {
   padding: 10px;
 }
+
 .shareTop {
   display: flex;
   align-items: center;
 }
+
 .shareProfileImg {
   width: 50px;
   height: 50px;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 10px;
+  cursor: pointer;
 }
+
 .shareInput {
   width: 80%;
   border: none;
+  outline: none;
+  padding: 5px;
 }
+
 .shareInput:focus {
   outline: none;
 }
+
 .shareHr {
   margin: 20px;
+  border: none;
+  border-top: 1px solid #eee;
 }
+
+.shareError {
+  padding: 10px 20px;
+  color: #d32f2f;
+  font-size: 13px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  margin: 10px 20px;
+}
+
 .shareOptions {
   display: flex;
   margin-left: 20px;
+  margin-bottom: 10px;
 }
+
 .shareIcon {
   font-size: 18px;
   margin-right: 3px;
 }
+
 .shareOptionText {
   font-size: 14px;
   font-weight: 500;
 }
+
 .shareOption {
   display: flex;
   align-items: center;
   margin-right: 15px;
   cursor: pointer;
 }
+
 .shareBottom {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
 .shareButton {
   border: none;
-  padding: 7px;
+  padding: 7px 20px;
   border-radius: 5px;
-  background-color: green;
+  background-color: #1877f2;
   font-weight: 500;
   margin-right: 20px;
   cursor: pointer;
   color: white;
+  transition: background-color 0.2s;
 }
+
+.shareButton:hover {
+  background-color: #1565c0;
+}
+
+.shareButton:disabled {
+  background-color: #90caf9;
+  cursor: not-allowed;
+}
+
 .shareImgContainer {
   padding: 0 20px 10px 20px;
   position: relative;
@@ -69,12 +108,22 @@
 .shareImg {
   width: 100%;
   object-fit: cover;
+  border-radius: 4px;
+  max-height: 400px;
 }
 
 .shareCancelImg {
   position: absolute;
-  top: 0;
-  right: 20px;
+  top: 5px;
+  right: 25px;
   cursor: pointer;
   opacity: 0.7;
+  background: white;
+  border-radius: 50%;
+  padding: 2px;
+  transition: opacity 0.2s;
+}
+
+.shareCancelImg:hover {
+  opacity: 1;
 }
