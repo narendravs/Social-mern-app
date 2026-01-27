@@ -81,6 +81,6 @@ npm start
 # Open a new terminal
 
 cd client
-npm install
+npm install --legacy-peer-deps
 npm start
 ```
