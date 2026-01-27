@@ -141,17 +141,34 @@ app.use("/api/auth", authRoot);
 app.use("/api/posts", authPosts);
 app.use("/api/users", authUser);
 
-//8. 404 Handler (MUST be after routes, before global error handler)
+// 8. Serve Frontend Static Files in Production
+if (process.env.NODE_ENV === "production") {
+  // Point to the 'build' folder you created with Vite
+  const buildPath = path.join(__dirname, "../client/build");
+
+  app.use(express.static(buildPath));
+
+  // Handle SPA routing: send index.html for any unknown non-API routes
+  app.get("*", (req, res, next) => {
+    // Check if the request is trying to reach an /api route
+    if (req.originalUrl.startsWith("/api")) {
+      return next(); // Fall through to 404 handler
+    }
+    res.sendFile(path.join(buildPath, "index.html"));
+  });
+}
+
+//9. 404 Handler (MUST be after routes, before global error handler)
 app.use((req, res) => {
   res
     .status(404)
     .json({ error: { code: "NOT_FOUND", message: "Route not found" } });
 });
 
-// 9. Global Error Handler (MUST be the absolute last middleware)
+// 10. Global Error Handler (MUST be the absolute last middleware)
 app.use(errorHandler);
 
-//10. MongoDB connection with better error handling
+//11. MongoDB connection with better error handling
 if (!process.env.MONGO_URL) {
   console.error(
     "✗ Fatal Error: MONGO_URL is not defined in environment variables.",
@@ -173,7 +190,7 @@ mongoose
     process.exit(1);
   });
 
-//11. Graceful shutdown
+//12. Graceful shutdown
 process.on("SIGTERM", () => {
   console.log("SIGTERM received, shutting down gracefully");
   httpServer.close(() => {
