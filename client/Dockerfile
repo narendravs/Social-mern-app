@@ -25,10 +25,10 @@ COPY --from=build /app/build /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port
-EXPOSE 3000
+EXPOSE 6001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:6001 || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
