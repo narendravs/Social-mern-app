@@ -1,5 +1,4 @@
 import React, { Suspense, lazy, useContext } from "react";
-import "./App.css";
 import { AuthContext } from "./context/AuthContext";
 import { CircularProgress, Box } from "@mui/material";
 import {
