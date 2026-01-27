@@ -1,29 +1,47 @@
-1.  Installation
+# Narensocial - MERN Stack Social Media Platform
 
-2.  Download the project from the following repository https://github.com/narendravs/Social-mern-app.git
+A full-featured social networking application built with the MERN stack, featuring real-time notifications, secure JWT authentication, and Cloudinary media integration.
 
-3.  Install dependencies
+## 1. Installation & Setup
 
-    cd client
+### 1.1. Download the Project
 
-    npm install
+Clone the project from the following repository:
 
-    npm start
+```bash
+git clone https://github.com/narendravs/Social-mern-app.git
+cd Social-mern-app
+```
 
-4.  Techstack used for this admin are
+### 1.2. Install Dependencies
 
-    React
+Navigate to the client directory and install the necessary packages:
 
-    Axios for api calls
+```bash
+cd client
+npm install
+```
 
-    React-router & React-router-dom used for navigating the pages acrros the appliction by using these react api.
+### 1.3. Start the Application
 
-    Context-api used to maintain the state of the applicion.
+Launch the development server:
 
-5.  Features
+```bash
+npm start
+```
 
-    Created the user login and register pages.
+## 2. Tech Stack (Client-Side)
 
-    Aftre user authentication/login in home page you can post comments share images like comments and follow the
+- **React:** The core library used for building the component-based User Interface.
+- **Axios:** Used for handling all asynchronous API requests and implementing interceptors for token management.
+- **React Router & DOM:** Used for navigating the pages across the application and managing URL synchronization.
+- **Context API:** Used to maintain the global state of the application, such as user authentication and theme settings.
 
-    use by subscribing and vice versa other users can do same things after login.
+## 3. Key Features
+
+- **Login & Register:** Fully functional authentication system allowing users to create accounts and securely access the platform.
+- **JWT Authentication:** Secure user sessions using JSON Web Tokens with implemented silent refresh logic and protected routing.
+- **Cloudinary Integration:** High-performance image uploads and storage, saving secure image URLs directly in the database to keep the server lightweight.
+- **Real-time Interaction:** Live notifications and typing indicators powered by Socket.io and Redis for instant user feedback.
+- **Dynamic Feed:** A live wall where users can post updates, share images, and engage with content from their network.
+- **Social Graph:** Advanced user profile management including follow/unfollow mechanics and real-time status updates.
