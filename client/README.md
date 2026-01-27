@@ -19,7 +19,7 @@ Navigate to the client directory and install the necessary packages:
 
 ```bash
 cd client
-npm install
+npm install --legacy-peer-deps
 ```
 
 ### 1.3. Start the Application
