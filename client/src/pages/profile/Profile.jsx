@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useContext } from "react";
 import Topbar from "../../components/topbar/topbar";
 import Sidebar from "../../components/sidebar/sidebar";
 import Rightbar from "../../components/rightbar/rightbar";
 import Feed from "../../components/feed/feed";
 import "./profile.css";
-import { Users } from "../../dummyData";
+import AuthContext from "../../context/AuthContext";
 
 function profile() {
-  const user = Users[0];
+  const { user } = useContext(AuthContext);
 
   const PF = "http://localhost:3000/images/";
   return (

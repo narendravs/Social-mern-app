@@ -12,7 +12,7 @@ import {
   School,
   Add,
 } from "@mui/icons-material";
-import CloseFriend from "../closeFriend/closeFrined.jsx";
+import CloseFriend from "../closeFriend/CloseFriend.jsx";
 import { userAPI } from "../../lib/api.jsx";
 import { AuthContext } from "../../context/AuthContext.jsx";
 import { useSocket } from "../../context/socket/SocketContext.jsx";

@@ -2,22 +2,18 @@ import React, { useContext, useRef } from "react";
 import "./login.css";
 import { AuthContext } from "../../context/AuthContext";
 import { CircularProgress } from "@material-ui/core";
-import loginCall from "../../apiCalls";
 
 function Login() {
   const email = useRef();
   const password = useRef();
-  const { isFetching, dispatch } = useContext(AuthContext);
+  const { isFetching, login } = useContext(AuthContext);
   const handleClick = (e) => {
     e.preventDefault();
 
-    loginCall(
-      {
-        email: email.current.value,
-        password: password.current.value,
-      },
-      dispatch
-    );
+    login({
+      email: email.current.value,
+      password: password.current.value,
+    });
   };
 
   return (
