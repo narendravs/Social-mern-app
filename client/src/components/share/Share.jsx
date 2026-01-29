@@ -20,8 +20,7 @@ function Share({ onPost }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { socket } = useSocket();
-  const { user, updateUser, dispatch } = useContext(AuthContext);
-  const PF = import.meta.env.VITE_PUBLIC_FOLDER || "/images/";
+  const { user, dispatch } = useContext(AuthContext);
   const descRef = useRef();
   const profilePicInputRef = useRef();
 
@@ -41,16 +40,21 @@ function Share({ onPost }) {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
 
-    // Validate file type
-    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-    if (!allowedTypes.includes(selectedFile.type)) {
-      setError("Invalid file type. Only JPEG, PNG, GIF and WebP are allowed.");
+    // 1. Validate File Type (Starts with 'image/' or 'video/')
+    const isImage = selectedFile.type.startsWith("image/");
+    const isVideo = selectedFile.type.startsWith("video/");
+
+    if (!isImage && !isVideo) {
+      setError("Invalid file type. Please select an image or a video.");
       return;
     }
 
-    // Validate file size (5MB max)
-    if (selectedFile.size > 5 * 1024 * 1024) {
-      setError("File size too large. Maximum size is 5MB.");
+    // 2. Validate File Size (Example: 5MB for images, 50MB for videos)
+    const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+    if (selectedFile.size > maxSize) {
+      setError(
+        `File too large. Max size for ${isImage ? "images" : "videos"} is ${isVideo ? "50MB" : "5MB"}.`,
+      );
       return;
     }
 
@@ -156,9 +160,9 @@ function Share({ onPost }) {
               src={
                 BuildImageUrl(
                   user?.profilePicture || "",
-                  PF,
+                  import.meta.env.VITE_PUBLIC_FOLDER,
                   user?.updatedAt,
-                ) || PF + "person/noAvatar.png"
+                ) || import.meta.env.VITE_PUBLIC_FOLDER + "person/noAvatar.png"
               }
               alt=""
             />
@@ -204,7 +208,7 @@ function Share({ onPost }) {
                 style={{ display: "none" }}
                 type="file"
                 id="file"
-                accept=".jpg,.jpeg,.png,.gif,.webp"
+                accept="image/*,video/*"
                 onChange={handleFileChange}
               />
             </label>
