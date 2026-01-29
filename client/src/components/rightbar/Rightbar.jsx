@@ -19,7 +19,6 @@ function Rightbar({ user }) {
   const [followersCount, setFollowersCount] = useState(
     user?.followersCount || 0,
   );
-  const PF = import.meta.env.VITE_PUBLIC_FOLDER || "/images/";
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -138,9 +137,11 @@ function Rightbar({ user }) {
                         src={
                           BuildImageUrl(
                             friend?.profilePicture || "",
-                            PF,
+                            import.meta.env.VITE_PUBLIC_FOLDER,
                             friend?.updatedAt,
-                          ) || PF + "person/noAvatar.png"
+                          ) ||
+                          import.meta.env.VITE_PUBLIC_FOLDER +
+                            "person/noAvatar.png"
                         }
                         alt=""
                         className="rightbarFollowingImg"
