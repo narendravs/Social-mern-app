@@ -19,22 +19,28 @@
   object-fit: cover;
 }
 
+.profileUserImageContainer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 150px;
+  margin: auto;
+  width: 150px;
+  height: 150px;
+}
+
 .profileUserImg {
   width: 150px;
   height: 150px;
   border-radius: 50%;
   border: 3px solid white;
   object-fit: cover;
-  /* position: absolute;
-  left: 0;
-  right: 0;
-  margin: auto;
-  top: 150px; */
-  left: 0;
-  right: 0;
-  position: absolute;
-  margin: auto;
-  top: 150px;
+}
+
+.profileCoverImg,
+.profileUserImg {
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
 }
 
 .profileInfo {
@@ -42,6 +48,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+.profileCoverImg:hover,
+.profileUserImg:hover {
+  opacity: 0.8;
 }
 
 .profileInfoName {
@@ -55,4 +65,81 @@
 
 .profileRightBottom {
   display: flex;
+}
+.profileError {
+  color: red;
+  size: 15px;
+  margin-bottom: 10px;
+}
+.profileUploadStatus {
+  color: #1877f2;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+.profileCoverEditButton {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+}
+
+.profileUserImgEditButton {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.profileUploadActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.actionButtons span {
+  font-weight: 500;
+}
+
+.actionButtons button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.actionButtons button:first-of-type {
+  background-color: #1877f2; /* blue */
+  color: white;
+}
+
+.actionButtons button:last-of-type {
+  background-color: #e4e6eb; /* light gray */
+  color: black;
 }
