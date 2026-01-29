@@ -1,10 +1,8 @@
 .register {
-  width: 100vw;
-  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: whitesmoke;
+  background-color: #f0f2f5;
 }
 .registerWrapper {
   width: 70%;
@@ -29,12 +27,13 @@
 }
 .registerBox {
   flex: 1;
+  min-height: 550px;
   background-color: white;
   border-radius: 10px;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
   margin-top: 20px;
   margin-bottom: 20px;
   box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
@@ -43,13 +42,13 @@
   height: 50px;
   border-radius: 10px;
   border: 1px solid #ccc;
-  padding-left: 20px;
+  padding-left: 45px; /* Increased padding to make space for icon */
   font-size: 16px;
   transition: border 0.3s ease;
 }
 .registerInput:focus {
   outline: none;
-  border: 1px solid #1775ee;
+  border: 1px solid grey;
 }
 .loginButton1 {
   height: 50px;
@@ -59,12 +58,14 @@
   background-color: #1775ee;
   cursor: pointer;
   font-weight: 500;
-  font-size: 20px;
+  font-size: 18px;
   width: 100%;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease-in-out;
 }
 .loginButton1:hover {
   background-color: #1164ce;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 .loginButton1:disabled {
   cursor: not-allowed;
@@ -74,6 +75,90 @@
   cursor: pointer;
   color: gray;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
+}
+.selectContainer {
+  position: relative;
+  width: 100%;
+}
+.registerInput {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  color: #1c1e21; /* Use a dark color for typed text */
+}
+
+/* Style placeholder text for input fields */
+.registerInput::placeholder {
+  color: gray;
+  opacity: 0.7;
+}
+
+/* Keep the select placeholder text gray until an option is chosen */
+select.registerInput:invalid {
+  color: gray;
+  opacity: 0.7;
+}
+
+.registerInput option {
+  color: #1c1e21; /* Options in the dropdown should be dark */
+}
+
+.registerDiv {
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.registerIcon {
+  position: absolute;
+  left: 15px;
+  color: gray;
+}
+.registerSuccess {
+  color: green;
+  text-align: center;
   margin-top: 10px;
+  font-weight: bold;
+}
+.messageContainer {
+  min-height: 40px; /* Adjust this height based on your font size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+/* Update your existing classes to remove margins that cause shifts */
+.registerError {
+  color: red;
+  text-align: center;
+  font-size: 14px;
+}
+.registerSuccess {
+  color: #2d9d78;
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+.registerMsg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.navigateMsg{
+  font-size: "12px",
+  margin-top: "5px",
+  color: "#1164ce",
+  cursor: "pointer",
+}
+.registerContainer {
+  display: flex;
+  justify-content: center; 
+  width: 100%;
+}
+
+.registerinLink {
+   width: fit-content;
 }
