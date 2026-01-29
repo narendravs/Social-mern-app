@@ -33,7 +33,12 @@ function App() {
   const { user } = useContext(AuthContext);
 
   return (
-    <Router>
+    <Router
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route
