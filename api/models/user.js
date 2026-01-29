@@ -77,7 +77,7 @@ const UserSchema = new mongoose.Schema(
     },
     relationship: {
       type: String,
-      enum: ["Single", "Married", "Unmarried", ""],
+      enum: ["Single", "Married", "Other"],
       default: "",
     },
   },
