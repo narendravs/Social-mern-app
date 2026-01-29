@@ -7,14 +7,17 @@ const storage = multer.memoryStorage();
 // 2. Define File Filter (Security)
 // This ensures only images are processed, reducing the risk of malicious uploads
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-
-  if (allowedTypes.includes(file.mimetype)) {
+  // Check if the mimetype starts with 'image/' OR 'video/'
+  // This covers .jpg, .png, .gif, .mp4, .mov, .avi, .webp, etc.
+  if (
+    file.mimetype.startsWith("image/") ||
+    file.mimetype.startsWith("video/")
+  ) {
     cb(null, true);
   } else {
     cb(
       new Error(
-        "Unsupported file format. Please upload an image (JPG, PNG, GIF, WebP).",
+        "Unsupported file format. Please upload an image or video file.",
       ),
       false,
     );
@@ -25,7 +28,7 @@ const fileFilter = (req, file, cb) => {
 const uploadProfile = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // Strict 5MB limit to protect server RAM
+    fileSize: 50 * 1024 * 1024, // Strict 50MB limit to protect server RAM
   },
   fileFilter: fileFilter,
 });
