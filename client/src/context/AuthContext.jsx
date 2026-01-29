@@ -53,7 +53,7 @@ export const AuthContextProvider = ({ children }) => {
   // Login function with validation
   const login = useCallback(async (email, password) => {
     dispatch({ type: "LOGIN_START" });
-
+    console.log(email, password);
     try {
       // Validate input
       if (!email || !password) {
@@ -99,7 +99,9 @@ export const AuthContextProvider = ({ children }) => {
         throw new Error("Password must be at least 6 characters");
       }
 
-      await authAPI.register(userData);
+      const res = await authAPI.register(userData);
+      dispatch({ type: "REGISTER_SUCCESS" });
+      return { success: true };
     } catch (error) {
       const message =
         error.response?.data?.error?.message ||
