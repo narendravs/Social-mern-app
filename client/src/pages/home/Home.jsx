@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
-import Topbar from "../../components/topbar/topbar";
-import Sidebar from "../../components/sidebar/sidebar";
-import Feed from "../../components/feed/feed";
-import Rightbar from "../../components/rightbar/rightbar";
-import "./home.css";
+import Topbar from "../../components/topbar/Topbar";
+import Sidebar from "../../components/sidebar/Sidebar";
+import Feed from "../../components/feed/Feed";
+import Rightbar from "../../components/rightbar/Rightbar";
+import "./Home.css";
 import { AuthContext } from "../../context/AuthContext";
 
 function Home() {
@@ -13,7 +13,7 @@ function Home() {
       <Topbar />
       <div className="homeContainer">
         <Sidebar />
-        <Feed ussername={user.ussername} />
+        <Feed />
         <Rightbar user={user} />
       </div>
     </div>
