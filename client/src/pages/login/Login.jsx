@@ -1,19 +1,34 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext, useRef, useEffect } from "react";
 import "./login.css";
 import { AuthContext } from "../../context/AuthContext";
 import { CircularProgress } from "@material-ui/core";
+import { useNavigate } from "react-router-dom";
+import { Email, Lock } from "@material-ui/icons";
 
 function Login() {
   const email = useRef();
   const password = useRef();
-  const { isFetching, login } = useContext(AuthContext);
-  const handleClick = (e) => {
+  const { isFetching, login, error, errorMessage, clearError } =
+    useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Clear any old errors when the login page loads
+    clearError();
+  }, [clearError]);
+
+  const handleClick = async (e) => {
     e.preventDefault();
 
-    login({
-      email: email.current.value,
-      password: password.current.value,
-    });
+    try {
+      const res = await login(email.current.value, password.current.value);
+
+      if (res.success) {
+        navigate("/");
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -27,21 +42,31 @@ function Login() {
         </div>
         <div className="loginRight">
           <form className="loginBox" onSubmit={handleClick}>
-            <input
-              type="email"
-              placeholder="email"
-              required
-              className="loginInput"
-              ref={email}
-            />
-            <input
-              type="password"
-              placeholder="password"
-              required
-              className="loginInput"
-              minLength="6"
-              ref={password}
-            />
+            <div className="loginDiv">
+              <Email className="loginIcon" />
+              <input
+                type="email"
+                placeholder="email"
+                required
+                className="loginInput"
+                ref={email}
+              />
+            </div>
+            <div className="loginDiv">
+              <Lock className="loginIcon" />
+              <input
+                type="password"
+                placeholder="password"
+                required
+                className="loginInput"
+                minLength="6"
+                ref={password}
+                onInput={clearError}
+              />
+            </div>
+            <div className="messageContainer">
+              {error && <span className="loginError">{errorMessage}</span>}
+            </div>
             <button className="loginButton">
               {isFetching ? (
                 <CircularProgress color="white" size="20px" />
@@ -49,14 +74,11 @@ function Login() {
                 "Log In"
               )}
             </button>
-            <span className="loginForgot">Forgot Password?</span>
-            <button className="loginRegisterButton">
-              {isFetching ? (
-                <CircularProgress color="white" size="20px" />
-              ) : (
-                "Create a New Account"
-              )}
-            </button>
+            <div className="loginForgotContainer">
+              <span className="loginLink" onClick={() => navigate("/register")}>
+                Sign up
+              </span>
+            </div>
           </form>
         </div>
       </div>
