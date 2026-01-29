@@ -1,25 +1,18 @@
 .login {
-  width: 100vw;
   height: 100vh;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #f0f2f5;
-  /* margin: 20px;
-  background-color: lightgray;
-  border: 2px solid black; */
 }
 .loginWrapper {
   width: 70%;
   height: 70%;
   display: flex;
-
-  /* border: 5px solid green;
-   width: 400px; 
-  width: 30%;
-  margin: 10px;
-  padding-inline: inherit;
-  height: 200px; */
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
 }
 .loginLeft,
 .loginRight {
@@ -38,99 +31,98 @@
   font-size: 24px;
 }
 .loginBox {
-  height: 300px;
+  height: max-content;
   padding: 20px;
   background-color: white;
   border-radius: 10px;
   display: flex;
+  gap: 10px;
   flex-direction: column;
-  justify-content: space-between;
+  box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
 }
 .loginInput {
   height: 50px;
+  width: 100%;
   border-radius: 10px;
-  border: 1px solid grey;
-  padding-left: 20px;
+  border: 1px solid #ccc;
+  padding-left: 40px;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #1c1e21; /* Use a dark color for typed text */
 }
+
+.loginInput::placeholder {
+  color: gray;
+  opacity: 0.7;
+}
+
 .loginInput:focus {
   outline: none;
+  border: 1px solid grey;
 }
 .loginButton {
   height: 50px;
+  width: 100%;
   border-radius: 10px;
   border: none;
   cursor: pointer;
   background-color: #1775ee;
   color: white;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 500;
+  transition: all 0.3s ease-in-out;
 }
-.loginButton:focus {
+.loginButton:hover {
   outline: none;
+  background-color: #1164ce;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
+
 .loginButton:disabled {
   cursor: not-allowed;
 }
-.loginForgot {
-  text-align: center;
-  color: #1775ee;
-}
-.loginRegisterButton {
-  width: 60%;
-  align-self: center;
-  height: 50px;
-  border-radius: 10px;
-  border: none;
-  background-color: #42b72a;
-  color: white;
-  font-weight: 500;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-/* .input {
-  width: 30px;
-  height: 10px;
-  margin: 5px;
-}
-.label {
-  font-size: 8px;
-}
-.button {
-  margin-left: 40px;
-  width: 30px;
-  height: 10px;
-  margin-top: 5px;
-  padding: 2px;
-
+.loginForgotContainer {
   display: flex;
-  justify-content: center;
-  align-items: center;
-} */
-/* .loginWrapper {
-  width: 70%;
-  height: 70%;
-  display: flex;
-}
-.loginLeft,
-loginRight {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-} */
-/* .display {
-  padding: 10px;
-  padding-left: 30px;
+  justify-content: flex-end; /* Aligns the link to the right */
   width: 100%;
 }
-.columns {
-  display: flex;
-  flex-direction: row;
+
+.loginLink {
+  color: #1775ee;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 14px;
+  /* Now the cursor:pointer only applies to the text width */
 }
-.divide {
+
+.loginLink:hover {
+  color: #1164ce;
+}
+.loginError {
+  color: red;
+  font-size: 12px;
+  font-weight: 400;
+  margin-top: 0;
+}
+.messageContainer {
+  min-height: 20px; /* Adjust based on your font size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+.loginDiv {
+  width: 100%;
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: space-around;
-} */
+  align-items: center;
+  justify-content: flex-start;
+}
+.loginIcon {
+  color: gray;
+  margin-left: 10px;
+  font-size: 22px;
+  position: absolute;
+}
