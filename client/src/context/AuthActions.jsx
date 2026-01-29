@@ -24,7 +24,9 @@ export const RegisterFailure = (error) => ({
   type: "REGISTER_FAILURE",
   payload: error,
 });
-
+export const RegisterSuccess = () => ({
+  type: "REGISTER_SUCCESS",
+});
 export const Follow = (userId) => ({
   type: "FOLLOW",
   payload: userId,
@@ -42,4 +44,9 @@ export const UpdateUser = (userData) => ({
 
 export const ResetError = () => ({
   type: "RESET_ERROR",
+});
+
+export const UpdateError = (error) => ({
+  type: "UPDATE_ERROR",
+  payload: error,
 });
