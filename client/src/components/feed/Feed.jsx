@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import Post from "../post/Post";
-import Share from "../share/share";
+import Share from "../share/Share";
 import { AuthContext } from "../../context/AuthContext";
 import { postAPI } from "../../lib/api";
 import { CircularProgress, Button } from "@mui/material";
 import "./Feed.css";
 
-function Feed({ username }) {
+function Feed({ username = undefined }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -120,10 +120,6 @@ function Feed({ username }) {
 
 Feed.propTypes = {
   username: PropTypes.string,
-};
-
-Feed.defaultProps = {
-  username: undefined,
 };
 
 export default Feed;
