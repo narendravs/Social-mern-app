@@ -18,7 +18,7 @@ const registerSchema = z.object({
   password: z.string().min(6),
   city: z.string().optional(),
   from: z.string().optional(),
-  relationship: z.enum(["Single", "Married", "Unmarried"]).optional(),
+  relationship: z.enum(["Single", "Married", "Other"]).optional(),
 });
 
 const loginSchema = z.object({
