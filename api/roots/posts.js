@@ -351,4 +351,57 @@ router.get(
   }),
 );
 
+// Update a comment
+router.put(
+  "/:id/comments/:commentId",
+  auth,
+  asyncHandler(async (req, res) => {
+    try {
+      const post = await Post.findById(req.params.id);
+      if (!post) return res.status(404).json("Post not found");
+
+      // Find the comment subdocument
+      const comment = post.comments.id(req.params.commentId);
+      if (!comment) return res.status(404).json("Comment not found");
+
+      // Check if the current user is the author of the comment
+      if (comment.userId === req.user.id) {
+        comment.text = req.body.text;
+        await post.save();
+        res.status(200).json(comment);
+      } else {
+        res.status(403).json("You can only update your own comment");
+      }
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  }),
+);
+
+// Delete a comment
+router.delete(
+  "/:id/comments/:commentId",
+  auth,
+  asyncHandler(async (req, res) => {
+    try {
+      const post = await Post.findById(req.params.id);
+      if (!post) return res.status(404).json("Post not found");
+
+      const comment = post.comments.id(req.params.commentId);
+      if (!comment) return res.status(404).json("Comment not found");
+
+      // Allow deletion if user is the comment author OR the post author
+      if (comment.userId === req.user.id || post.userId === req.user.id) {
+        await comment.deleteOne();
+        await post.save();
+        res.status(200).json("The comment has been deleted");
+      } else {
+        res.status(403).json("You can only delete your own comment");
+      }
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  }),
+);
+
 module.exports = router;
