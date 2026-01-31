@@ -79,8 +79,9 @@ function Feed({ username }) {
   return (
     <div className="feed">
       <div className="feedWrapper">
-        <Share onPost={handleNewPost} />
-
+        {(!username || username === user.username) && (
+          <Share onPost={handleNewPost} />
+        )}
         {loading && posts.length === 0 ? (
           <div className="feedLoading">
             <CircularProgress />
