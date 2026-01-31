@@ -7,7 +7,7 @@ import { postAPI } from "../../lib/api";
 import { CircularProgress, Button } from "@mui/material";
 import "./Feed.css";
 
-function Feed({ username = undefined }) {
+function Feed({ username }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
