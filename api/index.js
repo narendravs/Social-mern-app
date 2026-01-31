@@ -8,6 +8,7 @@ const cookieParser = require("cookie-parser");
 const path = require("path");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
+const fs = require("fs");
 
 // Routes & Utils
 const { initializeSocket } = require("./utils/socket");
@@ -94,12 +95,19 @@ if (process.env.NODE_ENV !== "production") {
 // 6. Production Static Serving
 if (process.env.NODE_ENV === "production") {
   const buildPath = path.join(__dirname, "../client/build");
-  app.use(express.static(buildPath));
-  app.get("*", (req, res) => {
-    if (!req.originalUrl.startsWith("/api")) {
-      res.sendFile(path.join(buildPath, "index.html"));
-    }
-  });
+  // Only serve static files if the build directory exists
+  if (fs.existsSync(buildPath)) {
+    app.use(express.static(buildPath));
+    app.get("*", (req, res) => {
+      if (!req.originalUrl.startsWith("/api")) {
+        res.sendFile(path.join(buildPath, "index.html"));
+      }
+    });
+  } else {
+    console.warn(
+      "⚠️ Frontend build folder not found. Running in API-only mode.",
+    );
+  }
 }
 
 // 7. Error Handling (Must be last)
