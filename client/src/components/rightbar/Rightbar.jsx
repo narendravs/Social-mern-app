@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useCallback } from "react";
 import "./Rightbar.css";
-import Online from "../online/online";
+import Online from "../online/Online";
 import { Remove, Add } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
