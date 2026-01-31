@@ -47,6 +47,6 @@ export const ResetError = () => ({
 });
 
 export const UpdateError = (error) => ({
-  type: "UPDATE_ERROR",
+  type: "UPDATE_FAILURE",
   payload: error,
 });
