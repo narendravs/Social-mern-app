@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./closeFriend.css";
+import "./CloseFriend.css";
 import BuildImageUrl from "../../utils/BuildImageUrl.jsx";
 
 function CloseFriend({ user, onRemove }) {
