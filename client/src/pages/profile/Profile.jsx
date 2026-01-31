@@ -10,13 +10,27 @@ import { userAPI } from "../../lib/api";
 import { useParams } from "react-router-dom";
 
 function Profile() {
-  const { user, dispatch, error, errorMessage } = useContext(AuthContext);
+  const [user, setUser] = useState({});
+  const { dispatch, error, errorMessage } = useContext(AuthContext);
   const [isUploading, setIsUploading] = useState(false);
   const params = useParams();
   const username = params.username;
 
   const profileInputRef = useRef();
   const coverInputRef = useRef();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        // Fetch the user whose profile we are actually visiting
+        const res = await userAPI.getUserByUsername(username);
+        setUser(res.data);
+      } catch (err) {
+        console.error("Error fetching profile user:", err);
+      }
+    };
+    fetchUser();
+  }, [username]);
 
   const handleFileSelectAndUpload = async (e, type) => {
     const file = e.target.files[0];
