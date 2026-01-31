@@ -2,210 +2,140 @@ const express = require("express");
 const mongoose = require("mongoose");
 const helmet = require("helmet");
 const dotenv = require("dotenv");
-const multer = require("multer");
 const morgan = require("morgan");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const fs = require("fs");
 const path = require("path");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
-const cloudinary = require("cloudinary").v2;
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
-// 1. Load Environment Variables First
-dotenv.config();
-
-// Routes
+// Routes & Utils
+const { initializeSocket } = require("./utils/socket");
 const authRoot = require("./roots/auth");
 const authPosts = require("./roots/posts");
 const authUser = require("./roots/user");
-
-// Middlewares
 const errorHandler = require("./middlewares/errorHandler");
-const rateLimiter = require("./middlewares/rateLimiter");
 
-// Utils
-const { initializeSocket } = require("./utils/socket");
+dotenv.config();
+
+// Validation
+if (!process.env.MONGO_URL) {
+  console.error("✗ Fatal Error: MONGO_URL is not defined.");
+  process.exit(1);
+}
 
 const app = express();
 const httpServer = createServer(app);
 
-//2. Socket.io setup for real-time features
-// Updated Socket.io setup in index.js
+// 1. Socket.io Configuration
 const io = new Server(httpServer, {
   cors: {
     origin: process.env.CLIENT_URL || "http://localhost:6001",
     credentials: true,
   },
-  // Add this for better stability on Render/Vercel environments
   transports: ["websocket", "polling"],
-  allowEIO3: true, // Only if you have very old clients connecting
+  allowEIO3: true,
 });
 
-// Make io accessible to routes
 app.set("io", io);
 
-// Initialize socket handlers
-initializeSocket(io);
-
-// 3. General Middlewares (Security, Parsing, Logging)
-// Security middleware
+// 2. Security & Global Middleware
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"],
-      },
-    },
+    contentSecurityPolicy: false, // Set false if using external CDNs frequently
   }),
 );
 
-// CORS configuration
 app.use(
   cors({
     origin: process.env.CLIENT_URL || "http://localhost:6001",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 
-// Body parsing
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
-//4. Static files with proper headers
+// 3. Static Files & Health Checks
 app.use("/images", express.static(path.join(__dirname, "public/images")));
-
-// 5. Special Endpoints (Health, Upload, Favicon)
-// Health check endpoint
-app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    status: "OK",
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-  });
-});
-
-// Prevent 404 for favicon.ico
+app.get("/api/health", (req, res) =>
+  res.status(200).json({ status: "OK", uptime: process.uptime() }),
+);
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 
-//6. Swagger documentation setup
-if (process.env.NODE_ENV !== "production") {
-  const swaggerJsdoc = require("swagger-jsdoc");
-  const swaggerUi = require("swagger-ui-express");
-
-  const swaggerOptions = {
-    definition: {
-      openapi: "3.0.0",
-      info: {
-        title: "MERN Social API",
-        version: "1.0.0",
-        description: "A full-stack social media application API documentation",
-        contact: {
-          name: "API Support",
-          email: "support@example.com",
-        },
-      },
-      servers: [
-        {
-          url: `http://localhost:${process.env.PORT || 5000}`,
-          description: "Development server",
-        },
-      ],
-      components: {
-        securitySchemes: {
-          bearerAuth: {
-            type: "http",
-            scheme: "bearer",
-            bearerFormat: "JWT",
-          },
-        },
-      },
-      security: [{ bearerAuth: [] }],
-    },
-    apis: ["./roots/*.js"],
-  };
-
-  const swaggerSpec = swaggerJsdoc(swaggerOptions);
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-}
-
-//7. API routes
+// 4. API Routes
 app.use("/api/auth", authRoot);
 app.use("/api/posts", authPosts);
 app.use("/api/users", authUser);
 
-// 8. Serve Frontend Static Files in Production
+// 5. Documentation (Development Only)
+if (process.env.NODE_ENV !== "production") {
+  const swaggerJsdoc = require("swagger-jsdoc");
+  const swaggerUi = require("swagger-ui-express");
+  const swaggerOptions = {
+    definition: {
+      openapi: "3.0.0",
+      info: { title: "MERN Social API", version: "1.0.0" },
+      servers: [{ url: `http://localhost:${process.env.PORT || 5000}` }],
+    },
+    apis: ["./roots/*.js"],
+  };
+  app.use(
+    "/api-docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerJsdoc(swaggerOptions)),
+  );
+}
+
+// 6. Production Static Serving
 if (process.env.NODE_ENV === "production") {
-  // Point to the 'build' folder you created with Vite
   const buildPath = path.join(__dirname, "../client/build");
-
   app.use(express.static(buildPath));
-
-  // Handle SPA routing: send index.html for any unknown non-API routes
-  app.get("*", (req, res, next) => {
-    // Check if the request is trying to reach an /api route
-    if (req.originalUrl.startsWith("/api")) {
-      return next(); // Fall through to 404 handler
+  app.get("*", (req, res) => {
+    if (!req.originalUrl.startsWith("/api")) {
+      res.sendFile(path.join(buildPath, "index.html"));
     }
-    res.sendFile(path.join(buildPath, "index.html"));
   });
 }
 
-//9. 404 Handler (MUST be after routes, before global error handler)
-app.use((req, res) => {
-  res
-    .status(404)
-    .json({ error: { code: "NOT_FOUND", message: "Route not found" } });
-});
-
-// 10. Global Error Handler (MUST be the absolute last middleware)
+// 7. Error Handling (Must be last)
+app.use((req, res) => res.status(404).json({ error: "Route not found" }));
 app.use(errorHandler);
 
-//11. MongoDB connection with better error handling
-if (!process.env.MONGO_URL) {
-  console.error(
-    "✗ Fatal Error: MONGO_URL is not defined in environment variables.",
-  );
-  process.exit(1);
-}
+// 8. Server Startup Logic
+const startServer = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URL, {
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+    });
+    console.log("✓ MongoDB Connected");
 
-mongoose
-  .connect(process.env.MONGO_URL, {
-    maxPoolSize: 10,
-    serverSelectionTimeoutMS: 30000, // Increased timeout for Atlas connections
-    socketTimeoutMS: 45000,
-  })
-  .then(() => {
-    console.log("✓ MongoDB Connected successfully");
-  })
-  .catch((err) => {
-    console.error("✗ MongoDB connection error:", err.message);
+    await initializeSocket(io);
+    console.log("✓ Socket/Redis Ready");
+
+    const PORT = process.env.PORT || 5000;
+    httpServer.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
+  } catch (err) {
+    console.error("✗ Startup Failed:", err);
     process.exit(1);
-  });
+  }
+};
 
-//12. Graceful shutdown
+// Graceful Shutdown
 process.on("SIGTERM", () => {
-  console.log("SIGTERM received, shutting down gracefully");
   httpServer.close(() => {
     mongoose.connection.close(false, () => {
-      console.log("Server closed");
+      console.log("Cleanup complete, exiting.");
       process.exit(0);
     });
   });
 });
 
-// Start server
-const PORT = process.env.PORT || 5000;
-httpServer.listen(PORT, () => {
-  console.log(`🚀 API Server running on port ${PORT}`);
-  console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
-});
+startServer();
 
-module.exports = { app, io };
+module.exports = { app };
