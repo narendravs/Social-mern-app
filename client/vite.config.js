@@ -7,7 +7,7 @@ export default defineConfig({
     port: 6001,
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
+        target: "https://social-mern-app.onrender.com",
         changeOrigin: true,
       },
     },
