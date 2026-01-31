@@ -27,10 +27,11 @@ if (!process.env.MONGO_URL) {
 
 const app = express();
 const httpServer = createServer(app);
+app.set("trust proxy", 1);
 
 const allowedOrigins = [
   "https://social-mern-app-two.vercel.app",
-  "https://social-mern-app-two.vercel.app/",
+  "http://localhost:8000",
 ];
 // 1. Socket.io Configuration
 const io = new Server(httpServer, {
