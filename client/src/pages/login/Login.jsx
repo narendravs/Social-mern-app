@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useEffect } from "react";
-import "./login.css";
+import "./Login.css";
 import { AuthContext } from "../../context/AuthContext";
 import { CircularProgress } from "@material-ui/core";
 import { useNavigate } from "react-router-dom";
