@@ -14,7 +14,7 @@ export const SocketContextProvider = ({ children }) => {
       console.log("Attempting to connect socket with user:", user._id);
       // Only connect if no socket exists
       const newSocket = io(
-        import.meta.env.VITE_API_URL || "http://localhost:8000",
+        import.meta.env.VITE_SOCKET_URL || "http://localhost:8000",
         {
           auth: { token },
           transports: ["websocket", "polling"],
