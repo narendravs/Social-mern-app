@@ -104,7 +104,6 @@ export const userAPI = {
 };
 
 export const postAPI = {
-  // createPost: (data) => api.post("/posts", data),
   createPost: (formData) =>
     api.post("/posts", formData, {
       headers: {
@@ -119,6 +118,10 @@ export const postAPI = {
   getComments: (postId) => api.get(`/posts/${postId}/comments`),
   getTimeline: (userId, page = 1, limit = 10) =>
     api.get(`/posts/timeline/${userId}?page=${page}&limit=${limit}`),
+  updateComment: (postId, commentId, data) =>
+    api.put(`/posts/${postId}/comments/${commentId}`, data),
+  deleteComment: (postId, commentId) =>
+    api.delete(`/posts/${postId}/comments/${commentId}`),
   getRandomPosts: (page = 1, limit = 10) =>
     api.get(`/posts/random?page=${page}&limit=${limit}`),
   getProfilePosts: (username, page = 1, limit = 10) =>
