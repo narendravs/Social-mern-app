@@ -83,9 +83,14 @@ const initializeSocket = async (io) => {
       // 5. Track Online Status in Redis
       if (socket.userId) {
         console.log(`User ${socket.userId} joined room: user:${socket.userId}`);
+        // 1. Define the room name once (Prevents typos)
+        const userRoom = `user:${socket.userId}`;
+
+        // 2. Join the room immediately (User is now "Listening")
+        socket.join(userRoom);
+
         // Store socketId in a Set for this user
         await redisClient.sAdd(`online_users:${socket.userId}`, socket.id);
-        socket.join(`user:${socket.userId}`);
 
         // Broadcast user is online
         socket.broadcast.emit("user:online", { userId: socket.userId });
