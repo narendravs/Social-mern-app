@@ -48,11 +48,22 @@ app.use(
   }),
 );
 
+const allowedOrigins = [
+  "https://social-mern-app-two.vercel.app",
+  "https://social-mern-app-two.vercel.app/",
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:6001",
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        return callback(new Error("CORS Policy: Origin not allowed"), false);
+      }
+      return callback(null, true);
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   }),
 );
 
