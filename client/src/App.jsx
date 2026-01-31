@@ -9,10 +9,10 @@ import {
 } from "react-router-dom";
 
 // Lazy load components for better performance
-const Login = lazy(() => import("./pages/login/login"));
-const Home = lazy(() => import("./pages/home/home"));
-const Register = lazy(() => import("./pages/register/register"));
-const Profile = lazy(() => import("./pages/profile/profile"));
+const Login = lazy(() => import("./pages/login/Login"));
+const Home = lazy(() => import("./pages/home/Home"));
+const Register = lazy(() => import("./pages/register/Register"));
+const Profile = lazy(() => import("./pages/profile/Profile"));
 
 // Loading fallback component
 const LoadingFallback = () => (
