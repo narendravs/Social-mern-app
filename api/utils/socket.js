@@ -18,20 +18,18 @@ const redisClient = createClient({
 
 redisClient.on("error", (err) => console.error("❌ Redis Client Error", err));
 
-// Self-invoking function to connect to Redis
-(async () => {
-  if (!redisClient.isOpen) {
-    await redisClient.connect();
-    console.log("✓ Connected to Upstash Redis");
-  }
-})();
-
 /**
  * Initialize socket.io handlers
  * @param {Server} io - Socket.io server instance
  */
 const initializeSocket = async (io) => {
   try {
+    // 1. Ensure Main Redis Client is Connected
+    if (!redisClient.isOpen) {
+      await redisClient.connect();
+      console.log("✓ Connected to Upstash Redis");
+    }
+
     // 2. Create and Connect the Subscriber Client
     // (The adapter REQUIRES a duplicate client for Pub/Sub)
     const subClient = redisClient.duplicate();
