@@ -28,9 +28,17 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
   const [newComment, setNewComment] = useState("");
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [commentCount, setCommentCount] = useState(post?.commentCount || 0);
+  const [focusedCommentId, setFocusedCommentId] = useState(false);
   const { socket } = useSocket();
-  const PF = import.meta.env.VITE_PUBLIC_FOLDER || "/images/";
-  const { user: currentUser } = useContext(AuthContext);
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingCommentText, setEditingCommentText] = useState("");
+
+  const {
+    user: currentUser,
+    error,
+    errorMessage,
+    dispatch,
+  } = useContext(AuthContext);
   const currentUserId = currentUser?._id || currentUser?.id;
   const isOwner = currentUserId === post?.userId;
 
@@ -182,6 +190,54 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
     return () => document.removeEventListener("click", handleClickOutside);
   }, [showMenu]);
 
+  const handleEditComment = useCallback((commentId, currentText) => {
+    setEditingCommentId(commentId);
+    setEditingCommentText(currentText);
+    setShowMenu(false); // Close post menu if open
+  }, []);
+
+  const handleDeleteComment = useCallback(
+    async (commentId) => {
+      if (!window.confirm("Are you sure you want to delete this comment?"))
+        return;
+
+      try {
+        const postId = post._id || post.id;
+        await postAPI.deleteComment(postId, commentId);
+        setComments((prev) => prev.filter((c) => c._id !== commentId));
+        setCommentCount((prev) => Math.max(0, prev - 1));
+      } catch (err) {
+        console.error("Failed to delete comment", err);
+      }
+    },
+    [post._id],
+  );
+
+  const handleUpdateComment = useCallback(
+    async (commentId) => {
+      if (!editingCommentText.trim()) return;
+
+      try {
+        const postId = post._id || post.id;
+        const res = await postAPI.updateComment(postId, commentId, {
+          text: editingCommentText,
+        });
+        setComments((prev) =>
+          prev.map((c) => (c._id === commentId ? res.data : c)),
+        );
+        setEditingCommentId(null);
+        setEditingCommentText("");
+      } catch (err) {
+        dispatch({
+          type: "UPDATE_FAILURE",
+          payload: "Failed to update comment.",
+        });
+        console.error("Failed to update comment", err);
+      }
+    },
+    [post._id, editingCommentText],
+  );
+
   return (
     <div className="post">
       <div className="postWrapper">
@@ -193,9 +249,10 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
                 src={
                   BuildImageUrl(
                     user?.profilePicture || "",
-                    PF,
+                    import.meta.env.VITE_PUBLIC_FOLDER,
                     user?.updatedAt,
-                  ) || PF + "person/noAvatar.png"
+                  ) ||
+                  import.meta.env.VITE_PUBLIC_FOLDER + "person/noAvatar.png"
                 }
                 alt=""
               />
@@ -280,7 +337,7 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
           {post?.img && (
             <img
               className="postImg"
-              src={BuildImageUrl(post.img, PF)}
+              src={BuildImageUrl(post.img, import.meta.env.VITE_PUBLIC_FOLDER)}
               alt=""
               loading="lazy"
             />
@@ -290,13 +347,13 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
           <div className="postBottomLeft">
             <img
               className="likeIcon"
-              src={`${PF}like.png`}
+              src={`${import.meta.env.VITE_PUBLIC_FOLDER}like.png`}
               onClick={likeHandler}
               alt=""
             />
             <img
               className="likeIcon"
-              src={`${PF}heart.png`}
+              src={`${import.meta.env.VITE_PUBLIC_FOLDER}heart.png`}
               onClick={likeHandler}
               alt=""
             />
@@ -318,9 +375,10 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
                 src={
                   BuildImageUrl(
                     currentUser?.profilePicture,
-                    PF,
+                    import.meta.env.VITE_PUBLIC_FOLDER,
                     currentUser?.updatedAt,
-                  ) || PF + "person/noAvatar.png"
+                  ) ||
+                  import.meta.env.VITE_PUBLIC_FOLDER + "person/noAvatar.png"
                 }
                 alt=""
               />
@@ -350,27 +408,90 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
                     key={comment._id || comment.createdAt}
                     className="postComment"
                   >
-                    <Link to={`/profile/${comment.username}`}>
+                    <Link to={`/profile/${comment.username || ""}`}>
                       <img
                         className="postCommentProfileImg"
                         src={
-                          BuildImageUrl(comment.profilePicture, PF) ||
-                          PF + "person/noAvatar.png"
+                          BuildImageUrl(
+                            comment.profilePicture,
+                            import.meta.env.VITE_PUBLIC_FOLDER,
+                            comment.updatedAt,
+                          ) ||
+                          import.meta.env.VITE_PUBLIC_FOLDER +
+                            "person/noAvatar.png"
                         }
                         alt=""
                       />
                     </Link>
-                    <div className="postCommentBody">
-                      <Link
-                        to={`/profile/${comment.username}`}
-                        className="postCommentUsernameLink"
+                    {editingCommentId === comment._id ? (
+                      <form
+                        className="postCommentEditForm"
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          handleUpdateComment(comment._id);
+                        }}
                       >
-                        <span className="postCommentUsername">
-                          {comment.username}
-                        </span>
-                      </Link>
-                      <p className="postCommentTextContent">{comment.text}</p>
-                    </div>
+                        <textarea
+                          className="postCommentEditInput"
+                          value={editingCommentText}
+                          onChange={(e) =>
+                            setEditingCommentText(e.target.value)
+                          }
+                          autoFocus
+                        />
+                        {error && (
+                          <span className="updateError">{errorMessage}</span>
+                        )}
+                        <div className="postCommentEditActions">
+                          <button type="submit">Save</button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingCommentId(null)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <div
+                        className="postCommentBody"
+                        onFocus={() => setFocusedCommentId(comment._id)}
+                        onBlur={(e) => {
+                          if (!e.currentTarget.contains(e.relatedTarget)) {
+                            setFocusedCommentId(null);
+                          }
+                        }}
+                        tabIndex={currentUserId === comment.userId ? 0 : -1}
+                      >
+                        <Link
+                          to={`/profile/${comment.username}`}
+                          className="postCommentUsernameLink"
+                        >
+                          <span className="postCommentUsername">
+                            {comment.username}
+                          </span>
+                        </Link>
+                        <p className="postCommentTextContent">{comment.text}</p>
+                        {focusedCommentId === comment._id &&
+                          currentUserId === comment.userId && (
+                            <div className="postCommentActions">
+                              <Edit
+                                className="commentActionIcon"
+                                fontSize="inherit"
+                                onClick={() =>
+                                  handleEditComment(comment._id, comment.text)
+                                }
+                              />
+
+                              <Delete
+                                className="commentActionIcon"
+                                fontSize="inherit"
+                                onClick={() => handleDeleteComment(comment._id)}
+                              />
+                            </div>
+                          )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -381,25 +502,5 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
     </div>
   );
 });
-Post.propTypes = {
-  post: PropTypes.shape({
-    _id: PropTypes.string,
-    userId: PropTypes.string,
-    desc: PropTypes.string,
-    img: PropTypes.string,
-    likes: PropTypes.arrayOf(PropTypes.string),
-    likeCount: PropTypes.number,
-    commentCount: PropTypes.number,
-    createdAt: PropTypes.string,
-  }),
-  onDelete: PropTypes.func,
-  onUpdate: PropTypes.func,
-};
-
-Post.defaultProps = {
-  post: {},
-  onDelete: undefined,
-  onUpdate: undefined,
-};
 
 export default Post;
