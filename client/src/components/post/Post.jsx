@@ -40,7 +40,7 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
     dispatch,
   } = useContext(AuthContext);
   const currentUserId = currentUser?._id || currentUser?.id;
-  const isOwner = currentUserId === post?.userId;
+  const isOwner = String(currentUserId) === String(post?.userId);
 
   useEffect(() => {
     setIsLiked(post?.likes?.includes(currentUserId));
@@ -87,7 +87,10 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
     postAPI.likePost(post._id).then(() => {
       // Only send notification if we are LIKING (not unliking)
       // and we aren't liking our own post
-      if (!originalLikedState && post.userId !== currentUserId) {
+      if (
+        !originalLikedState &&
+        String(post.userId) !== String(currentUserId)
+      ) {
         console.log("Emitting like notification to:", post.userId);
         socket?.emit("sendNotification", {
           senderName: currentUser.username,
@@ -135,7 +138,7 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
         const res = await postAPI.addComment(post._id, { text: newComment });
 
         // SEND NOTIFICATION
-        if (post.userId !== currentUserId) {
+        if (String(post.userId) !== String(currentUserId)) {
           console.log("Emitting comment notification to:", post.userId);
           socket?.emit("sendNotification", {
             senderName: currentUser.username,
