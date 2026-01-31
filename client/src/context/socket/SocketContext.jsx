@@ -17,7 +17,7 @@ export const SocketContextProvider = ({ children }) => {
         import.meta.env.VITE_SOCKET_URL || "http://localhost:8000",
         {
           auth: { token },
-          transports: ["websocket"], // Force WebSocket to avoid CORS/Polling issues on Render/Vercel
+          transports: ["websocket", "polling"],
           reconnection: true,
           reconnectionAttempts: 5,
         },
