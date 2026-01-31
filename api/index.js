@@ -28,10 +28,20 @@ if (!process.env.MONGO_URL) {
 const app = express();
 const httpServer = createServer(app);
 
+const allowedOrigins = [
+  "https://social-mern-app-two.vercel.app",
+  "https://social-mern-app-two.vercel.app/",
+];
 // 1. Socket.io Configuration
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:6001",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS Policy: Origin not allowed"), false);
+      }
+    },
     credentials: true,
   },
   transports: ["websocket", "polling"],
@@ -47,11 +57,6 @@ app.use(
     contentSecurityPolicy: false, // Set false if using external CDNs frequently
   }),
 );
-
-const allowedOrigins = [
-  "https://social-mern-app-two.vercel.app",
-  "https://social-mern-app-two.vercel.app/",
-];
 
 app.use(
   cors({
