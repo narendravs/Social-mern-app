@@ -33,6 +33,12 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentText, setEditingCommentText] = useState("");
 
+  const [deleteConfig, setDeleteConfig] = useState({
+    show: false,
+    type: null,
+    id: null,
+  });
+
   const {
     user: currentUser,
     error,
@@ -154,18 +160,6 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
     [newComment, post._id, currentUser, socket],
   );
 
-  const handleDelete = useCallback(async () => {
-    if (!post?._id) return;
-    if (!window.confirm("Are you sure you want to delete this post?")) return;
-
-    try {
-      await postAPI.deletePost(post._id);
-      if (onDelete) onDelete(post._id);
-    } catch (err) {
-      console.error("Delete error:", err);
-    }
-  }, [post?._id, onDelete]);
-
   const handleUpdate = useCallback(async () => {
     if (!post?._id || !editDesc.trim()) return;
 
@@ -196,22 +190,34 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
     setShowMenu(false); // Close post menu if open
   }, []);
 
-  const handleDeleteComment = useCallback(
-    async (commentId) => {
-      if (!window.confirm("Are you sure you want to delete this comment?"))
-        return;
+  const handleDeletePost = useCallback(() => {
+    setDeleteConfig({ show: true, type: "post", id: post._id });
+    setShowMenu(false);
+  }, [post._id]);
 
-      try {
-        const postId = post._id || post.id;
-        await postAPI.deleteComment(postId, commentId);
-        setComments((prev) => prev.filter((c) => c._id !== commentId));
+  // For Comments
+  const handleDeleteComment = useCallback((commentId) => {
+    setDeleteConfig({ show: true, type: "comment", id: commentId });
+    setShowMenu(false);
+  }, []);
+
+  const handleConfirmDelete = useCallback(async () => {
+    const { type, id } = deleteConfig;
+    try {
+      if (type === "post") {
+        await postAPI.deletePost(id);
+        if (onDelete) onDelete(id);
+      } else if (type === "comment") {
+        await postAPI.deleteComment(post._id, id);
+        setComments((prev) => prev.filter((c) => c._id !== id));
         setCommentCount((prev) => Math.max(0, prev - 1));
-      } catch (err) {
-        console.error("Failed to delete comment", err);
       }
-    },
-    [post._id],
-  );
+    } catch (err) {
+      console.error(`Error deleting ${type}:`, err);
+    } finally {
+      setDeleteConfig({ show: false, type: null, id: null });
+    }
+  }, [deleteConfig, post._id, onDelete]);
 
   const handleUpdateComment = useCallback(
     async (commentId) => {
@@ -239,7 +245,7 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
   );
 
   return (
-    <div className="post">
+    <div className="post" style={{ position: "relative" }}>
       <div className="postWrapper">
         <div className="postTop">
           <div className="postTopLeft">
@@ -296,7 +302,10 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
                       <Edit fontSize="small" />
                       <span>Edit</span>
                     </div>
-                    <div className="postMenuItem delete" onClick={handleDelete}>
+                    <div
+                      className="postMenuItem delete"
+                      onClick={handleDeletePost}
+                    >
                       <Delete fontSize="small" />
                       <span>Delete</span>
                     </div>
@@ -496,6 +505,29 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
                 ))}
               </div>
             )}
+          </div>
+        )}
+        {/* CUSTOM CONFIRMATION POPUP */}
+        {deleteConfig.show && (
+          <div
+            className={`deleteConfirmOverlay ${deleteConfig.type === "post" ? "isPostDelete" : ""}`}
+          >
+            <div className="deleteConfirmBox">
+              <p>Are you sure you want to delete this {deleteConfig.type}?</p>
+              <div className="deleteConfirmActions">
+                <button
+                  className="cancelBtn"
+                  onClick={() =>
+                    setDeleteConfig({ show: false, type: null, id: null })
+                  }
+                >
+                  Cancel
+                </button>
+                <button className="confirmBtn" onClick={handleConfirmDelete}>
+                  Yes, Delete
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
