@@ -53,7 +53,7 @@ export const AuthContextProvider = ({ children }) => {
   // Login function with validation
   const login = useCallback(async (email, password) => {
     dispatch({ type: "LOGIN_START" });
-    console.log(email, password);
+
     try {
       // Validate input
       if (!email || !password) {
