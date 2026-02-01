@@ -247,6 +247,26 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
   return (
     <div className="post" style={{ position: "relative" }}>
       <div className="postWrapper">
+        {deleteConfig.show && deleteConfig.type === "post" && (
+          <div className="deleteConfirmOverlay">
+            <div className="deleteConfirmBox">
+              <p>Are you sure you want to delete this {deleteConfig.type}?</p>
+              <div className="deleteConfirmActions">
+                <button
+                  className="cancelBtn"
+                  onClick={() =>
+                    setDeleteConfig({ show: false, type: null, id: null })
+                  }
+                >
+                  Cancel
+                </button>
+                <button className="confirmBtn" onClick={handleConfirmDelete}>
+                  Yes, Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="postTop">
           <div className="postTopLeft">
             <Link to={`/profile/${user?.username || ""}`}>
@@ -416,7 +436,40 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
                   <div
                     key={comment._id || comment.createdAt}
                     className="postComment"
+                    style={{ position: "relative" }}
                   >
+                    {deleteConfig.show &&
+                      deleteConfig.type === "comment" &&
+                      deleteConfig.id === comment._id && (
+                        <div className="deleteConfirmOverlay">
+                          <div className="deleteConfirmBox">
+                            <p>
+                              Are you sure you want to delete this{" "}
+                              {deleteConfig.type}?
+                            </p>
+                            <div className="deleteConfirmActions">
+                              <button
+                                className="cancelBtn"
+                                onClick={() =>
+                                  setDeleteConfig({
+                                    show: false,
+                                    type: null,
+                                    id: null,
+                                  })
+                                }
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                className="confirmBtn"
+                                onClick={handleConfirmDelete}
+                              >
+                                Yes, Delete
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     <Link to={`/profile/${comment.username || ""}`}>
                       <img
                         className="postCommentProfileImg"
@@ -508,7 +561,7 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
           </div>
         )}
         {/* CUSTOM CONFIRMATION POPUP */}
-        {deleteConfig.show && (
+        {/* {deleteConfig.show && (
           <div
             className={`deleteConfirmOverlay ${deleteConfig.type === "post" ? "isPostDelete" : ""}`}
           >
@@ -529,7 +582,7 @@ const Post = memo(function Post({ post, onDelete, onUpdate }) {
               </div>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );
