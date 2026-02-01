@@ -30,8 +30,8 @@ const httpServer = createServer(app);
 app.set("trust proxy", 1);
 
 const allowedOrigins = [
-  "https://social-mern-app-two.vercel.app",
-  "http://localhost:8000",
+  process.env.CLIENT_URL_PROD,
+  process.env.CLIENT_URL_LOCAL,
 ];
 // 1. Socket.io Configuration
 const io = new Server(httpServer, {
